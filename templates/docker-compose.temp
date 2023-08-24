@@ -1,0 +1,53 @@
+---
+version: "3.7"
+services:
+  change-data-vol-owner:
+    image: alpine
+    user: root
+    group_add:
+      - PGID_TO_REPLACE
+    volumes:
+      - VAULTWARDEN_DATA_PATH_TO_REPLACE:/data
+    command: ["sh", "-c", "mkdir -p /data/logs && chown -R 1007:1007 /data"]
+
+  vaultwarden:
+    image: vaultwarden/server:1.29.1
+    container_name: vaultwarden
+    user: "PUID_TO_REPLACE:PGID_TO_REPLACE"
+    read_only: true
+    environment:
+#      - ADMIN_TOKEN=THE GENERATED TOCKEN
+#      - SIGNUPS_ALLOWED=false
+#      - SIGNUPS_VERIFY=true
+#      - INVITATIONS_ALLOWED=false
+      - SHOW_PASSWORD_HINT=false
+      - EXTENDED_LOGGING=true
+      - LOG_LEVEL=info
+      - LOG_FILE=/data/logs/access.log
+      - TZ=TZ_TO_REPLACE
+      - ROCKET_ENV=prod
+      - ROCKET_PORT=8080
+      - DATA_FOLDER=/data
+      - LOGIN_RATELIMIT_MAX_BURST=10
+      - LOGIN_RATELIMIT_SECONDS=60
+    volumes:
+      - VAULTWARDEN_DATA_PATH_TO_REPLACE:/data
+    ports:
+      - "127.0.0.1:LOCAL_PORT_TO_REPLACE:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+    tmpfs:
+      - /var/run
+      - /var/log:mode=1755
+      - /var/tmp:mode=1777
+      - /tmp
+    logging:
+      driver: none
+    depends_on:
+      change-data-vol-owner:
+        condition: service_completed_successfully
+
+volumes:
+  data: 

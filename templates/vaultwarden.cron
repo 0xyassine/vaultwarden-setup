@@ -1,0 +1,2 @@
+#START VAULTWARDEN
+@reboot export PATH=/home/$USER/bin:$PATH;export PATH=/home/$USER/.local/bin:$PATH;export XDG_RUNTIME_DIR=/home/$USER/.docker/run;export DOCKER_HOST=unix:////run/user/`id -u`/docker.sock;sleep 30; $HOME/.local/bin/docker-compose -f $HOME/docker-compose.yml up -d
