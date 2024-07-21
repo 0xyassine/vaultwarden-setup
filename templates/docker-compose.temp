@@ -10,7 +10,9 @@ services:
     command: ["sh", "-c", "mkdir -p /data/logs && chown -R PUID_TO_REPLACE:PGID_TO_REPLACE /data"]
 
   vaultwarden:
-    image: vaultwarden/server:1.31.0
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: vaultwarden
     user: "PUID_TO_REPLACE:PGID_TO_REPLACE"
     read_only: true

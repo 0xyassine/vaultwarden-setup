@@ -189,6 +189,7 @@ fi
 
 if $FRESH_INSTALL || $FORCE_INSTALL; then
 	sudo cp `dirname $0`/templates/docker-compose.temp /home/$USER_NAME/docker-compose.yml
+	sudo cp `dirname $0`/templates/Dockerfile.temp /home/$USER_NAME/Dockerfile
 	sudo sed -i "s/PUID_TO_REPLACE/$PUID/g" /home/$USER_NAME/docker-compose.yml
 	sudo sed -i "s/PGID_TO_REPLACE/$PGID/g" /home/$USER_NAME/docker-compose.yml
 	sudo sed -i "s#VAULTWARDEN_DATA_PATH_TO_REPLACE#$VAULTWARDEN_DATA_PATH#g" /home/$USER_NAME/docker-compose.yml
@@ -197,7 +198,11 @@ if $FRESH_INSTALL || $FORCE_INSTALL; then
 	sudo sed -i "s#VAULTWARDEN_LOG_PATH_TO_REPLACE#$VAULTWARDEN_LOG_PATH#g" /home/$USER_NAME/docker-compose.yml
 	sudo sed -i "s#TZ_TO_REPLACE#$TZ#g" /home/$USER_NAME/docker-compose.yml
 	sudo sed -i "s#LOCAL_PORT_TO_REPLACE#$VAULTWARDEN_PORT#g" /home/$USER_NAME/docker-compose.yml
+	sudo sed -i "s/PUID_TO_REPLACE/$PUID/g" /home/$USER_NAME/Dockerfile
+	sudo sed -i "s/PGID_TO_REPLACE/$PGID/g" /home/$USER_NAME/Dockerfile
+	sudo sed -i "s/VAULTWARDEN_USER_ACCOUNT_TO_REPLACE/$VAULTWARDEN_USER_ACCOUNT/g" /home/$USER_NAME/Dockerfile
 	sudo chown $USER_NAME:$USER_NAME /home/$USER_NAME/docker-compose.yml
+	sudo chown $USER_NAME:$USER_NAME /home/$USER_NAME/Dockerfile
 fi
 
 echo "[+] STARTING VAULTWARDEN"

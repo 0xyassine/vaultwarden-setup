@@ -1,0 +1,4 @@
+FROM vaultwarden/server:1.31.0
+
+RUN echo "VAULTWARDEN_USER_ACCOUNT_TO_REPLACE:x:PUID_TO_REPLACE:PGID_TO_REPLACE::/home:/bin/sh" >> /etc/passwd \
+    && echo "VAULTWARDEN_USER_ACCOUNT_TO_REPLACE:x:PGID_TO_REPLACE:" >> /etc/group
