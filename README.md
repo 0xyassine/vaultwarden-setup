@@ -31,4 +31,4 @@ A new cronjob will be added to ensure Vaultwarden starts at system startup.
 
 ## Getting Started
 
-For more detailed instructions and tips, please refer to the [documentation](https://blog.byteninja.net/self-hosted-vaultwarden/) on my personal blog.
+For more detailed instructions and tips, please refer to the [documentation](https://www.byteninja.net/self-hosted-vaultwarden/) on my personal blog.
