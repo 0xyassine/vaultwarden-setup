@@ -13,7 +13,7 @@
 # ADD A CRONJOB TO RUN VAULTWARDEN AT REBOOT
 
 #VAULTWARDEN ACCESS WILL AT BE: https://DOMAIN
-#TO SETUP A NEW DOMAIN YOU CAN FOLLOW https://blog.byteninja.net/caddy-ssl-reverse-proxy/
+#TO SETUP A NEW DOMAIN YOU CAN FOLLOW https://www.byteninja.net/caddy-ssl-reverse-proxy/
 
 #MODIFY IF NEEDED
 VAULTWARDEN_USER_ACCOUNT="vaultwarden"
@@ -24,7 +24,7 @@ VAULTWARDEN_PORT=8081
 RESULT=$(sudo -l -U $USER)
 if echo "$RESULT" | grep -q 'not allowed';then
 	echo "[!] YOU ARE NOT ALLOWED TO EXECUTE SUDO COMMANDS"
-	exit
+	exit 1
 fi
 
 if [[ "$USER" == "$VAULTWARDEN_USER_ACCOUNT" ]];then
@@ -37,11 +37,11 @@ sudo apt update
 sudo apt install uidmap dbus-user-session curl -y
 if ! which newuidmap &> /dev/null;then
 	echo "[!] DOCKER ROOTLESS CAN NOT RUN WTHOUT THE uidmap package"
-	exit
+	exit 2
 fi
 if ! which curl &> /dev/null;then
 	echo "[!] curl IS REQUIRED"
-	exit
+	exit 3
 fi
 
 #VARIABLES
@@ -50,7 +50,7 @@ USER_NAME=$VAULTWARDEN_USER_ACCOUNT
 if ! grep $USER_NAME /etc/passwd;then
 	if ! sudo adduser $USER_NAME;then
 		echo "[!] $USER_NAME CAN NOT BE CREATED"
-		exit 1
+		exit 4
 	fi
 fi
 
@@ -62,7 +62,7 @@ if [ ! -f ~/.ssh/id_rsa.pub ];then
 			[Yy]* ) ssh-keygen; break;;
 			[Nn]* )
 				echo "[!] SSH KEYS ARE REQUIRED"
-				exit 2;;
+				exit 5;;
 			* ) echo "PLEASE ANSWER WITH YES OR NO";;
 		esac
 	done
@@ -86,7 +86,7 @@ sudo chmod 700 /home/$USER_NAME
 #TEST SSH CONNECTION
 if ! ssh $USER_NAME@localhost 'id';then
 	echo "[!] CAN NOT SSH TO THE USER [ $USER_NAME ]"
-	exit
+	exit 6
 else
 	echo "[+] SSH ACCESS IS READY"
 fi
@@ -95,14 +95,14 @@ fi
 echo "[+] INSTALLING DOCKER ROOTLESS AS [ $USER_NAME ]"
 if ! ssh $USER_NAME@localhost 'export SKIP_IPTABLES=1;curl -fsSL https://get.docker.com/rootless | sh';then
 	echo "[!] DOCKER ROOTLESS INSTALL FAILED"
-	exit
+	exit 7
 fi
 
 if ! ssh $USER_NAME@localhost 'bin/docker &> /dev/null';then
 	echo "[!] DOCKER BINARY NOT FOUND, EXECUTING THE INSTALLATION SCRIPT"
 	if ! ssh $USER_NAME@localhost 'export SKIP_IPTABLES=1;curl -fsSL https://get.docker.com/rootless | sh';then
 		echo "[!] DOCKER ROOTLESS INSTALL FAILED"
-		exit
+		exit 8
 	fi
 fi
 
@@ -133,13 +133,13 @@ else
 fi
 if ! ssh $USER_NAME@localhost 'systemctl --user start docker.service';then
 	echo "[!] DOCKERD NOT STARTED CORRECTLY"
-	exit
+	exit 9
 else
 	echo "[+] DOCKERD SERVICE STARTED"
 fi
 if ! ssh $USER_NAME@localhost 'loginctl enable-linger $(whoami)';then
 	echo "[!] DOCKER LINGER NOT ENABLED"
-        exit
+        exit 10
 else
 	echo "[+] DOCKER LINGER ENABLED"
 fi
@@ -148,14 +148,14 @@ if [ `ssh $USER_NAME@localhost 'systemctl --user is-active docker.service'` == "
 	echo "[+] DOCKERD IS RUNNING"
 else
 	echo "[!] DOCKERD IS NOT RUNNING"
-	exit
+	exit 11
 fi
 
 #INSTALL DOCKER COMPOSE
 echo "[+] INSTALLING DOCKER COMPOSE"
-if ! ssh $USER_NAME@localhost 'pip3 install docker-compose' &> /dev/null;then
+if ! ssh $USER_NAME@localhost 'mkdir -p .local/bin;curl -L "https://github.com/docker/compose/releases/download/v2.29.0/docker-compose-$(uname -s)-$(uname -m)" -o .local/bin/docker-compose;chmod +x .local/bin/docker-compose' &> /dev/null;then
 	echo "[!] FAILED TO INSTALL DOCKER COMPOSE"
-	exit
+	exit 12
 else
 	echo "[+] DOCKER COMPOSE INSTALLED"
 fi
